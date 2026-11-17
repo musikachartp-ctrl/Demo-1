@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dashboard สรุปผลการดำเนินงาน (Quality Insights) – DEMO</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f1f5f9;--card:#fff;--side:#0f2a47;--side2:#183a61;--tx:#0f172a;--mu:#64748b;--bd:#e2e8f0;--pri:#0ea5a4;--ok:#16a34a;--warn:#f59e0b;--bad:#ef4444;--blue:#2563eb;
+--sidetx:#e2e8f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0b1220;--card:#131c2e;--tx:#e5edf7;--mu:#94a3b8;--bd:#24324a}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font-family:"Noto Sans Thai","Sarabun",system-ui,sans-serif;background:var(--bg);color:var(--tx);display:flex;min-height:100vh}
+aside{width:290px;background:var(--side);color:var(--sidetx);padding:18px;flex-shrink:0;overflow-y:auto;max-height:100vh;position:sticky;top:0}
+.brand small{color:#7dd3fc;font-size:12px}.brand h2{margin:2px 0;font-size:20px}.brand p{margin:0;color:#94a3b8;font-size:12px}
+.sec{margin-top:16px}.sec h4{margin:0 0 8px;font-size:12px;color:#7dd3fc}
+.box{background:var(--side2);border-radius:10px;padding:10px;font-size:12px}
+.box a{color:#7dd3fc}.stat{display:flex;justify-content:space-between;margin-top:6px;color:#cbd5e1}
+select,.drop{width:100%;background:#0b1e35;color:#fff;border:1px solid #2b4a70;border-radius:8px;padding:6px;font:inherit;font-size:12px}
+.drop{margin-top:6px;text-align:center;border-style:dashed;padding:16px 6px;color:#94a3b8}
+details{background:var(--side2);border-radius:8px;margin-bottom:6px}summary{cursor:pointer;padding:8px 10px;font-size:13px;display:flex;justify-content:space-between}
+summary span{color:#7dd3fc;font-size:11px}
+.opts{padding:4px 10px 10px;font-size:12px;max-height:150px;overflow:auto}.opts label{display:block;padding:2px 0;cursor:pointer}
+.mini{display:flex;gap:10px;margin-bottom:4px}.mini button{background:none;border:0;color:#7dd3fc;font-size:11px;cursor:pointer;padding:0}
+.tog{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:10px}
+.clr{margin-top:10px;width:100%;background:transparent;color:#fca5a5;border:1px solid #7f3a3a;border-radius:8px;padding:7px;cursor:pointer;font:inherit;font-size:13px}
+main{flex:1;padding:22px 26px;min-width:0}
+.hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.hd small{color:var(--pri);font-weight:600}.hd h1{margin:2px 0;font-size:26px}.hd p{margin:0;color:var(--mu)}
+.badge{background:#fef3c7;color:#92400e;border-radius:99px;padding:4px 12px;font-size:12px;margin-left:8px;vertical-align:middle}
+.rst{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:7px 14px;cursor:pointer;font:inherit}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:18px 0}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;border-top:4px solid var(--c)}
+.kpi .t{font-size:13px;color:var(--mu)}.kpi .v{font-size:32px;font-weight:700;margin:4px 0}.kpi .v small{font-size:14px;color:var(--mu);margin-left:4px;font-weight:400}
+.kpi .p{font-size:12px;color:var(--c);font-weight:600}.kpi .s{font-size:11px;color:var(--mu)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;min-width:0}
+.card h3{margin:0 0 2px;font-size:15px}.card .sub{font-size:12px;color:var(--mu);margin-bottom:8px}
+.cv{position:relative;height:280px}.wide{grid-column:1/-1}
+@media(max-width:820px){body{flex-direction:column}aside{width:100%;max-height:none;position:static}main{padding:16px}}
+</style></head><body>
+<aside>
+ <div class="brand"><small>กรมควบคุมมลพิษ</small><h2>Insight Dashboard</h2><p>ระบบติดตามผลการดำเนินงานรายหน่วยงาน</p></div>
+ <div class="sec"><h4>นำเข้าข้อมูล</h4>
+  <div class="box">Demo Data (ข้อมูลจำลอง)<div class="stat"><span>เชื่อมต่อข้อมูล</span><span id="syn">ซิงค์แล้ว (จำลอง)</span></div>
+  <div class="stat"><span>ซิงค์ทุก</span><select style="width:auto"><option>30 วิ</option><option>1 นาที</option><option>5 นาที</option><option>15 นาที</option></select></div></div>
+  <div class="drop">หรือนำเข้าไฟล์ .csv / .xlsx<br>คลิก หรือ ลากไฟล์มาวางที่นี่</div></div>
+ <div class="sec"><h4>ตัวกรองข้อมูล</h4><div id="filters"></div>
+  <label class="tog"><input type="checkbox" id="exk"> ไม่รวมข้อมูล สคพ.</label>
+  <button class="clr" id="clr">ล้างตัวกรองทั้งหมด</button></div>
+ <div class="sec" id="cnt" style="font-size:12px;color:#94a3b8"></div>
+</aside>
+<main>
+ <div class="hd"><div><small>กรมควบคุมมลพิษ</small><h1>Dashboard สรุปผลการดำเนินงาน<span class="badge">DEMO · ข้อมูลจำลอง</span></h1><p>Quality Insights — ภาพรวม KPI และประสิทธิภาพรายหน่วยงาน</p></div><button class="rst" id="rst">รีเซ็ต</button></div>
+ <div class="kpis" id="kpis"></div>
+ <div class="grid">
+  <div class="card"><h3>ดำเนินการแล้วเสร็จ: ตรงเกณฑ์ vs เกินเกณฑ์ (45 วันทำการ)</h3><div class="sub">เฉพาะเรื่องที่แล้วเสร็จ</div><div class="cv"><canvas id="c1"></canvas></div></div>
+  <div class="card"><h3>อยู่ระหว่างดำเนินการ: ตรงเกณฑ์ vs เกินเกณฑ์ (45 วันทำการ)</h3><div class="sub">เฉพาะเรื่องที่ยังไม่แล้วเสร็จ</div><div class="cv"><canvas id="c2"></canvas></div></div>
+  <div class="card"><h3>ดำเนินการแล้วเสร็จ แยกตามหน่วยงาน: ตรงเกณฑ์ vs เกินเกณฑ์ (เรื่อง)</h3><div class="cv"><canvas id="c3"></canvas></div></div>
+  <div class="card"><h3>อยู่ระหว่างดำเนินการ แยกตามหน่วยงาน: ตรงเกณฑ์ vs เกินเกณฑ์ (เรื่อง)</h3><div class="cv"><canvas id="c4"></canvas></div></div>
+  <div class="card"><h3>ปริมาณงานรายหน่วยงาน (รับ/เสร็จ)</h3><div class="cv"><canvas id="c5"></canvas></div></div>
+  <div class="card"><h3>สัดส่วนประเภทเรื่องรายหน่วยงาน</h3><div class="cv"><canvas id="c6"></canvas></div></div>
+  <div class="card wide"><h3>แนวโน้มปริมาณงาน (รายเดือน/สะสม)</h3><div class="cv"><canvas id="c7"></canvas></div></div>
+  <div class="card"><h3>ประสิทธิภาพ (ตรงเวลา vs เกินกำหนด)</h3><div class="sub">(เฉพาะเรื่องที่ดำเนินการแล้วเสร็จ)</div><div class="cv"><canvas id="c8"></canvas></div></div>
+  <div class="card"><h3>ภาพรวมคุณภาพข้อมูล (ครบถ้วน/ไม่ครบ)</h3><div class="sub">เฉพาะเรื่องที่ดำเนินการแล้วเสร็จ</div><div class="cv"><canvas id="c9"></canvas></div></div>
+  <div class="card wide"><h3>ข้อมูลไม่ครบถ้วน แยกรายหน่วยงาน</h3><div class="cv"><canvas id="c10"></canvas></div></div>
+ </div>
+</main>
+<script>
+// ---- ข้อมูลจำลอง (สุ่มแบบคงที่) ----
+let seed=20260;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const MN=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const DEP=["ส่วนงาน ก","ส่วนงาน ข","ส่วนงาน ค","ส่วนงาน ง","ส่วนงาน จ","สคพ. 1","สคพ. 2","สคพ. 3"];
+const TYP=["เรื่องร้องเรียน","ขอข้อมูล/คำปรึกษา","ตรวจสอบพื้นที่","ประเมินผลกระทบ"];
+const D=[];
+for(let i=0;i<640;i++){const y=rnd()<.45?2568:2569,m=Math.floor(rnd()*(y==2569?10:12));
+ const dep=DEP[Math.floor(Math.pow(rnd(),1.3)*DEP.length)],type=TYP[Math.floor(rnd()*4)];
+ const done=rnd()<(y==2568?.93:.72),late=rnd()<(done?.18:.3);
+ D.push({y:String(y),m,dep,type,done,late,full:done?rnd()<.84:rnd()<.5});}
+const F={y:{l:"ปี (Year)",k:"y",v:["2568","2569"]},m:{l:"เดือน (Month)",k:"m",v:MN.map((_,i)=>i)},d:{l:"หน่วยงาน (Department)",k:"dep",v:DEP},t:{l:"ประเภทเรื่อง (Type)",k:"type",v:TYP},s:{l:"ความครบถ้วนของข้อมูล (Data Status)",k:"full",v:[true,false]}};
+const lab=(f,v)=>f=="m"?MN[v]:f=="s"?(v?"ข้อมูลครบถ้วน":"ข้อมูลไม่ครบ"):v;
+const sel={};Object.keys(F).forEach(f=>sel[f]=new Set(F[f].v));
+const fe=document.getElementById("filters");
+function build(){fe.innerHTML="";for(const f in F){const d=document.createElement("details");
+ const n=sel[f].size,all=n==F[f].v.length;
+ d.innerHTML=`<summary>${F[f].l}<span>${all?"ทั้งหมด":n+" รายการ"}</span></summary><div class="opts"><div class="mini"><button data-a="all">เลือกทั้งหมด</button><button data-a="none">ล้าง</button></div>${F[f].v.map(v=>`<label><input type="checkbox" data-v="${v}" ${sel[f].has(v)?"checked":""}> ${lab(f,v)}</label>`).join("")}</div>`;
+ d.querySelectorAll("input").forEach((c,i)=>c.onchange=()=>{const v=F[f].v[i];c.checked?sel[f].add(v):sel[f].delete(v);upd();build2(f)});
+ d.querySelectorAll("button").forEach(b=>b.onclick=()=>{sel[f]=new Set(b.dataset.a=="all"?F[f].v:[]);build2(f)});
+ fe.append(d)}}
+function build2(open){const o=[...fe.querySelectorAll("details")].map(x=>x.open);build();[...fe.querySelectorAll("details")].forEach((x,i)=>x.open=o[i]||Object.keys(F)[i]==open);upd()}
+document.getElementById("clr").onclick=document.getElementById("rst").onclick=()=>{Object.keys(F).forEach(f=>sel[f]=new Set(F[f].v));exk.checked=false;build();upd()};
+const exk=document.getElementById("exk");exk.onchange=upd;
+const C={ok:"#16a34a",bad:"#ef4444",warn:"#f59e0b",blue:"#2563eb",pri:"#0ea5a4",pur:"#7c3aed",gr:"#94a3b8"};
+const ch={};
+function mk(id,type,data,opt={}){if(ch[id]){ch[id].data=data;ch[id].update();return}
+ ch[id]=new Chart(document.getElementById(id),{type,data,options:Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}},opt)})}
+const stk={scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}}};
+function upd(){
+ const R=D.filter(r=>sel.y.has(r.y)&&sel.m.has(r.m)&&sel.d.has(r.dep)&&sel.t.has(r.type)&&sel.s.has(r.full)&&!(exk.checked&&r.dep.startsWith("สคพ.")));
+ const done=R.filter(r=>r.done),prog=R.filter(r=>!r.done),full=done.filter(r=>r.full);
+ const pc=(a,b)=>b?(a/b*100).toFixed(1):"0.0";
+ document.getElementById("cnt").textContent=`แสดง ${R.length.toLocaleString()} จาก ${D.length.toLocaleString()} รายการ`;
+ document.getElementById("kpis").innerHTML=[
+  ["จำนวนเรื่องทั้งหมด",R.length,"รายการที่ตรงกับตัวกรอง","","var(--blue)"],
+  ["ดำเนินการแล้วเสร็จ",done.length,"คิดเป็นร้อยละของเรื่องทั้งหมด",pc(done.length,R.length),"var(--ok)"],
+  ["อยู่ระหว่างดำเนินการ",prog.length,"คิดเป็นร้อยละของเรื่องทั้งหมด",pc(prog.length,R.length),"var(--warn)"],
+  ["ความครบถ้วนของข้อมูล (เรื่องที่แล้วเสร็จ)",full.length,"นำเข้าข้อมูลครบถ้วน จากเรื่องที่แล้วเสร็จ",pc(full.length,done.length),"var(--pri)"]
+ ].map(k=>`<div class="kpi" style="--c:${k[4]}"><div class="t">${k[0]}</div><div class="v">${k[1].toLocaleString()}<small>เรื่อง</small></div>${k[3]?`<div class="p">${k[3]}%</div>`:""}<div class="s">${k[2]}</div></div>`).join("");
+ const dn=(a)=>({labels:["ตรงเกณฑ์","เกินเกณฑ์"],datasets:[{data:[a.filter(r=>!r.late).length,a.filter(r=>r.late).length],backgroundColor:[C.ok,C.bad]}]});
+ mk("c1","doughnut",dn(done));mk("c2","doughnut",dn(prog));
+ const deps=DEP.filter(d=>R.some(r=>r.dep==d));
+ const byDep=(a,fn)=>deps.map(d=>fn(a.filter(r=>r.dep==d)));
+ const two=a=>({labels:deps,datasets:[{label:"ตรงเกณฑ์",data:byDep(a,x=>x.filter(r=>!r.late).length),backgroundColor:C.ok},{label:"เกินเกณฑ์",data:byDep(a,x=>x.filter(r=>r.late).length),backgroundColor:C.bad}]});
+ mk("c3","bar",two(done),{indexAxis:"y",...stk});mk("c4","bar",two(prog),{indexAxis:"y",...stk});
+ mk("c5","bar",{labels:deps,datasets:[{label:"รับเรื่อง",data:byDep(R,x=>x.length),backgroundColor:C.blue},{label:"เสร็จ",data:byDep(R,x=>x.filter(r=>r.done).length),backgroundColor:C.pri}]},{scales:{y:{beginAtZero:true}}});
+ const tc=[C.blue,C.pri,C.warn,C.pur];
+ mk("c6","bar",{labels:deps,datasets:TYP.map((t,i)=>({label:t,data:byDep(R,x=>x.filter(r=>r.type==t).length),backgroundColor:tc[i]}))},{indexAxis:"y",...stk});
+ const ks=[...new Set(R.map(r=>r.y+"-"+String(r.m).padStart(2,"0")))].sort();
+ const mo=ks.map(k=>R.filter(r=>r.y+"-"+String(r.m).padStart(2,"0")==k));
+ let a=0,b=0;
+ mk("c7","line",{labels:ks.map(k=>MN[+k.slice(5)]+" "+k.slice(2,4)),datasets:[
+  {label:"รับรายเดือน",data:mo.map(x=>x.length),borderColor:C.blue,backgroundColor:C.blue,tension:.3},
+  {label:"เสร็จรายเดือน",data:mo.map(x=>x.filter(r=>r.done).length),borderColor:C.ok,backgroundColor:C.ok,tension:.3},
+  {label:"รับสะสม",data:mo.map(x=>a+=x.length),borderColor:C.blue,borderDash:[5,4],pointRadius:0,tension:.3},
+  {label:"เสร็จสะสม",data:mo.map(x=>b+=x.filter(r=>r.done).length),borderColor:C.ok,borderDash:[5,4],pointRadius:0,tension:.3}]},{scales:{y:{beginAtZero:true}}});
+ mk("c8","doughnut",{labels:["ตรงเวลา","เกินกำหนด"],datasets:[{data:[done.filter(r=>!r.late).length,done.filter(r=>r.late).length],backgroundColor:[C.ok,C.warn]}]});
+ mk("c9","doughnut",{labels:["ครบถ้วน","ไม่ครบ"],datasets:[{data:[full.length,done.length-full.length],backgroundColor:[C.pri,C.bad]}]});
+ mk("c10","bar",{labels:deps,datasets:[{label:"ข้อมูลไม่ครบ (เรื่อง)",data:byDep(done,x=>x.filter(r=>!r.full).length),backgroundColor:C.bad}]},{scales:{y:{beginAtZero:true}}});
+}
+build();upd();
+</script></body></html>
